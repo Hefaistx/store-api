@@ -7,6 +7,10 @@ var DeleteUserQuery = "DELETE FROM users WHERE id = $1"
 var GetUserByIdQuery = "SELECT * FROM users WHERE id = $1"
 var GetUsersQuery = "SELECT * FROM users"
 
+//CREDENTIAL QUERY
+var CreateUserCredentialQuery = "INSERT INTO credentials(user_id, username, password, roles, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6) RETURNING id"
+var FindUserByUsernamePasswordQuery = "SELECT id, user_id, username, password, roles, created_at, updated_at FROM credentials WHERE username = $1 AND password = $2"
+
 //PRODUCT QUERY
 var AddProductQuery = "INSERT INTO products (name, unit, price, created_at, updated_at) VALUES($1, $2, $3, $4) RETURNING id"
 var UpdateProductQuery = "UPDATE products SET name = $2, unit = $3, price = $4, updated_at = $5 WHERE id = $1"

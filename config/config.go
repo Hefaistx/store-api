@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
 )
 
@@ -21,9 +23,17 @@ type APIConfig struct {
 	ApiPort int
 }
 
+type TokenConfig struct {
+	ApplicationName    string
+	JwtSignatureKey    []byte
+	JwtSigningMethod   *jwt.SigningMethodHMAC
+	AccesTokenLifeTime time.Duration
+}
+
 type Config struct {
-	DB  DBConfig
-	API APIConfig
+	DB    DBConfig
+	API   APIConfig
+	Token TokenConfig
 }
 
 func (c *Config) readConfig() error {
@@ -53,7 +63,15 @@ func (c *Config) readConfig() error {
 		ApiPort: apiPort,
 	}
 
-	if c.DB.Host == "" || c.DB.Port == 0 || c.DB.User == "" || c.DB.Password == "" || c.DB.Dbname == "" || c.API.ApiPort == 0 {
+	accessTokenLifeTime := time.Duration(1) * time.Hour
+	c.Token = TokenConfig{
+		ApplicationName:    "Toko Cik Bos",
+		JwtSignatureKey:    []byte("TokoCikBosSecretMax"),
+		JwtSigningMethod:   jwt.SigningMethodHS256,
+		AccesTokenLifeTime: accessTokenLifeTime,
+	}
+
+	if c.DB.Host == "" || c.DB.Port == 0 || c.DB.User == "" || c.DB.Password == "" || c.DB.Dbname == "" || c.API.ApiPort == 0 || c.Token.ApplicationName == "" || c.Token.JwtSignatureKey == nil || c.Token.JwtSigningMethod == nil || c.Token.AccesTokenLifeTime == 0 {
 		return fmt.Errorf("Required Config")
 	}
 

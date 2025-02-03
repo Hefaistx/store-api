@@ -2,7 +2,7 @@ package repository
 
 import (
 	"database/sql"
-	m "enigma-laundry-app/model"
+	m "tokocikbosapi/model"
 )
 
 type TransactionDetail interface {

@@ -2,8 +2,8 @@ package repository
 
 import (
 	"database/sql"
-	conf "enigma-laundry-app/config"
-	m "enigma-laundry-app/model"
+	conf "tokocikbosapi/config"
+	m "tokocikbosapi/model"
 )
 
 type TransactionRepository interface {
@@ -18,7 +18,7 @@ type transactionRepository struct {
 	db *sql.DB
 }
 
-func (db *transactionRepository) CreateTransaction(transaction m.Transaction, details m.TransactionDetail) (m.Transaction, error) {
+func (db *transactionRepository) CreateTransaction(transaction m.Transaction, details []m.TransactionDetail) (m.Transaction, error) {
 	tx, err := db.db.Begin()
 	if err != nil {
 		return m.Transaction{}, err
@@ -28,15 +28,18 @@ func (db *transactionRepository) CreateTransaction(transaction m.Transaction, de
 		tx.Rollback()
 		return m.Transaction{}, err
 	}
-	for _, details := range details {
-		err = db.db.QueryRow(conf.CreateTransactionDetailQuery, details.ProductId, details.Quantity, transaction.Id).Scan(&details.Id)
+	for _, detail := range details {
+		err = db.db.QueryRow(conf.CreateTransactionDetailQuery, detail.Product_Id, detail.Quantity, transaction.Id).Scan(&detail.Id)
 		if err != nil {
-			details.Id = transaction.Id
+			detail.Id = transaction.Id
 			tx.Rollback()
 			return m.Transaction{}, err
 		}
 	}
-
+	if err = tx.Commit(); err != nil {
+		tx.Rollback()
+		return m.Transaction{}, err
+	}
 	return transaction, nil
 }
 

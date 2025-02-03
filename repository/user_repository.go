@@ -2,13 +2,14 @@ package repository
 
 import (
 	"database/sql"
-	conf "enigma-laundry-app/config"
-	m "enigma-laundry-app/model"
 	"fmt"
+	conf "tokocikbosapi/config"
+	m "tokocikbosapi/model"
 )
 
 type UserRepository interface {
 	CreateUser(user m.User) (m.User, error)
+	FindUserByUsernamePasswordQuery(username, password string) (m.UserCredential, error)
 	// GetUserById(id int) (m.User, error)
 	// GetUsers() ([]m.User, error)
 	// UpdateUser(user m.User) (m.User, error)
@@ -20,7 +21,7 @@ type userRepository struct {
 }
 
 func (db *userRepository) CreateUser(user m.User) (m.User, error) {
-	err := db.db.QueryRow(conf.CreateUserQuery, user.Username, user.Password, user.CreatedAt, user.UpdatedAt).Scan(&user.UserID)
+	err := db.db.QueryRow(conf.CreateUserQuery, user.FullName, user.Email, user.Phone).Scan(&user.ID)
 	if err != nil {
 		return m.User{}, fmt.Errorf("error creating user")
 	}
@@ -73,6 +74,17 @@ func (db *userRepository) DeleteUser(id int) error {
 	}
 
 	return nil
+}
+
+func (db *userRepository) FindUserByUsernamePasswordQuery(username, password string) (m.UserCredential, error) {
+	var cred m.UserCredential
+
+	err := db.db.QueryRow(conf.FindUserByUsernamePasswordQuery, username, password).Scan(&cred.ID, &cred.UserID, &cred.Username, &cred.Password, &cred.Roles, &cred.CreatedAt, &cred.UpdatedAt)
+	if err != nil {
+		return m.UserCredential{}, err
+	}
+
+	return cred, nil
 }
 
 func NewUserRepository(db *sql.DB) UserRepository {

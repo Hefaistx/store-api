@@ -2,9 +2,9 @@ package repository
 
 import (
 	"database/sql"
-	conf "enigma-laundry-app/config"
-	m "enigma-laundry-app/model"
 	"fmt"
+	conf "tokocikbosapi/config"
+	m "tokocikbosapi/model"
 )
 
 type productRepository struct {
